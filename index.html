@@ -1,0 +1,516 @@
+<index.html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>For You 💫</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  :root{
+    --deep-night:#020510;--star-gold:#ffe066;
+    --moon-glow:#fff7c0;--moon-core:#fffbe8;--rose:#ffb3c6;
+  }
+  html,body{width:100%;height:100%;overflow:hidden;background:var(--deep-night);font-family:'Cormorant Garamond',serif;touch-action:none;}
+
+  /* ── Sky ── */
+  #sky{position:fixed;inset:0;background:radial-gradient(ellipse at 58% 0%,#0e1c40 0%,#040c1e 48%,var(--deep-night) 100%);overflow:hidden;}
+  #sky::before{content:'';position:absolute;inset:0;pointer-events:none;
+    background:
+      radial-gradient(ellipse 75% 32% at 18% 28%,rgba(100,60,180,.20) 0%,transparent 70%),
+      radial-gradient(ellipse 55% 22% at 82% 58%,rgba(30,80,200,.16) 0%,transparent 70%),
+      radial-gradient(ellipse 65% 28% at 50% 82%,rgba(80,20,130,.12) 0%,transparent 70%),
+      radial-gradient(ellipse 40% 18% at 70% 20%,rgba(60,40,160,.10) 0%,transparent 70%);}
+
+  /* ── Stars ── */
+  .star{position:absolute;border-radius:50%;cursor:pointer;transition:transform .15s ease;will-change:transform;}
+  .star::after{content:'';position:absolute;inset:-55%;border-radius:50%;background:radial-gradient(circle,rgba(255,240,180,.20) 0%,transparent 70%);pointer-events:none;}
+  .star:active{transform:scale(1.8)!important;}
+
+  /* ── Moon ── */
+  #moon{position:absolute;top:8%;right:12%;width:90px;height:90px;border-radius:50%;
+    background:radial-gradient(circle at 38% 38%,var(--moon-core) 0%,var(--moon-glow) 55%,#e8d97a 100%);
+    box-shadow:0 0 30px 12px rgba(255,247,160,.55),0 0 70px 30px rgba(255,240,100,.30),0 0 140px 60px rgba(255,235,80,.15),inset -8px -6px 18px rgba(200,180,60,.25);
+    cursor:pointer;animation:moonPulse 4s ease-in-out infinite;z-index:10;}
+  #moon::before{content:'';position:absolute;inset:-40%;border-radius:50%;background:radial-gradient(circle,rgba(255,247,150,.18) 0%,transparent 65%);animation:moonAura 4s ease-in-out infinite;pointer-events:none;}
+  #moon::after{content:'';position:absolute;top:22%;left:55%;width:12px;height:12px;border-radius:50%;background:rgba(200,175,60,.35);box-shadow:-18px 22px 0 4px rgba(200,175,60,.22),8px 38px 0 2px rgba(200,175,60,.18);}
+  @keyframes moonPulse{
+    0%,100%{box-shadow:0 0 30px 12px rgba(255,247,160,.55),0 0 70px 30px rgba(255,240,100,.30),0 0 140px 60px rgba(255,235,80,.15),inset -8px -6px 18px rgba(200,180,60,.25);}
+    50%{box-shadow:0 0 42px 18px rgba(255,247,160,.72),0 0 92px 42px rgba(255,240,100,.42),0 0 185px 82px rgba(255,235,80,.22),inset -8px -6px 18px rgba(200,180,60,.25);}
+  }
+  @keyframes moonAura{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.09);}}
+
+  /* ── Shooting star ── */
+  .shoot-star{position:absolute;height:6px;border-radius:6px;cursor:pointer;pointer-events:all;z-index:15;opacity:0;}
+  .shoot-star::before{content:'';position:absolute;right:-8px;top:-7px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 0 16px 6px rgba(255,255,220,.95),0 0 34px 12px rgba(255,255,200,.55);}
+  .shoot-star::after{content:'';position:absolute;top:-5px;left:0;right:0;height:16px;border-radius:16px;background:inherit;filter:blur(6px);opacity:.55;}
+  .shoot-hit{position:absolute;inset:-28px -18px;cursor:pointer;z-index:6;}
+  .shoot-label{position:absolute;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.78rem;color:rgba(255,255,200,.78);white-space:nowrap;pointer-events:none;text-shadow:0 0 10px rgba(255,255,200,.7);top:-22px;right:16px;letter-spacing:.05em;}
+
+  /* ── Shoot-touch burst animation ── */
+  .shoot-ring{position:fixed;border-radius:50%;pointer-events:none;z-index:400;
+    border:2px solid rgba(255,240,160,.9);
+    animation:ringOut 0.7s cubic-bezier(.2,.8,.4,1) forwards;}
+  @keyframes ringOut{
+    0%  {transform:translate(-50%,-50%) scale(0);opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(4.5);opacity:0;}
+  }
+  .shoot-ray{position:fixed;pointer-events:none;z-index:400;
+    width:3px;border-radius:3px;
+    transform-origin:bottom center;
+    animation:rayOut 0.65s ease-out forwards;}
+  @keyframes rayOut{
+    0%  {opacity:1;height:0px;}
+    60% {opacity:1;}
+    100%{opacity:0;height:var(--rlen);}
+  }
+  .shoot-flash{position:fixed;pointer-events:none;z-index:399;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,220,.95) 0%,rgba(255,220,100,.5) 40%,transparent 70%);
+    animation:flashOut 0.45s ease-out forwards;}
+  @keyframes flashOut{
+    0%  {transform:translate(-50%,-50%) scale(0);opacity:1;}
+    100%{transform:translate(-50%,-50%) scale(3);opacity:0;}
+  }
+
+  /* ── Message bubble ── */
+  #msg-box{position:fixed;bottom:22%;left:50%;transform:translateX(-50%) translateY(10px);width:88%;max-width:380px;
+    background:rgba(5,10,30,.88);border:1px solid rgba(255,240,160,.22);border-radius:22px;
+    padding:22px 26px;text-align:center;color:#f0eaff;font-family:'Cormorant Garamond',serif;
+    font-size:1.18rem;font-style:italic;line-height:1.7;letter-spacing:.02em;
+    backdrop-filter:blur(14px);box-shadow:0 0 40px rgba(100,60,220,.18),0 8px 32px rgba(0,0,0,.5);
+    opacity:0;pointer-events:none;transition:opacity .4s ease,transform .4s ease;z-index:100;}
+  #msg-box.visible{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all;}
+  #msg-box .emoji{font-size:1.6rem;display:block;margin-bottom:8px;font-style:normal;}
+  #msg-close{display:block;margin:14px auto 0;background:none;border:1px solid rgba(255,240,160,.3);color:rgba(255,240,180,.7);border-radius:30px;padding:5px 22px;font-family:'Cormorant Garamond',serif;font-size:.95rem;cursor:pointer;letter-spacing:.08em;}
+
+  /* ── Guide panel ── */
+  #guide{
+    position:fixed;bottom:0;left:0;right:0;
+    background:linear-gradient(180deg,transparent 0%,rgba(2,5,20,.92) 28%);
+    padding:18px 24px 36px;
+    z-index:50;pointer-events:none;
+    display:flex;flex-direction:column;align-items:center;gap:7px;
+  }
+  .guide-row{display:flex;align-items:center;gap:10px;opacity:.72;}
+  .guide-icon{font-size:1rem;flex-shrink:0;}
+  .guide-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.82rem;color:rgba(220,210,255,.80);letter-spacing:.04em;line-height:1.4;}
+  .guide-divider{width:1px;height:14px;background:rgba(255,240,160,.18);}
+  .guide-title{font-family:'Playfair Display',serif;font-size:.7rem;letter-spacing:.22em;color:rgba(255,240,160,.35);text-transform:uppercase;margin-bottom:2px;}
+
+  /* ── Moon letter ── */
+  #moon-letter{position:fixed;inset:0;background:rgba(2,5,16,.95);z-index:200;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:32px 28px 24px;opacity:0;pointer-events:none;transition:opacity .6s ease;overflow-y:auto;}
+  #moon-letter.visible{opacity:1;pointer-events:all;}
+  .letter-title{font-family:'Playfair Display',serif;font-size:1.5rem;color:var(--moon-glow);letter-spacing:.12em;margin-bottom:24px;text-align:center;text-shadow:0 0 20px rgba(255,240,100,.6);flex-shrink:0;}
+  .letter-body{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;color:#e8e0ff;line-height:2;text-align:center;max-width:340px;letter-spacing:.01em;white-space:pre-wrap;flex-shrink:0;}
+  .cursor{display:inline-block;width:2px;height:1.1em;background:var(--star-gold);vertical-align:middle;margin-left:2px;animation:blink .7s step-end infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .sign{margin-top:28px;font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;color:var(--rose);opacity:0;transition:opacity 1s ease;text-align:center;flex-shrink:0;}
+  #moon-close{margin-top:22px;background:linear-gradient(135deg,rgba(255,200,80,.15),rgba(180,120,255,.15));border:1px solid rgba(255,240,160,.25);color:rgba(255,240,180,.8);border-radius:30px;padding:9px 32px;font-family:'Cormorant Garamond',serif;font-size:1rem;cursor:pointer;letter-spacing:.1em;opacity:0;transition:opacity 1s ease;flex-shrink:0;}
+
+  /* ── Sparkle ── */
+  .sparkle{position:fixed;pointer-events:none;z-index:300;border-radius:50%;animation:sparkleOut .7s ease-out forwards;}
+  @keyframes sparkleOut{0%{transform:scale(0) translate(0,0);opacity:1;}100%{transform:scale(1) translate(var(--tx),var(--ty));opacity:0;}}
+
+  /* ── Credit ── */
+  #credit{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-family:'Playfair Display',serif;font-size:.70rem;letter-spacing:.25em;color:rgba(255,240,180,.22);z-index:51;pointer-events:none;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div id="sky"></div>
+<div id="moon"></div>
+
+<!-- Message bubble -->
+<div id="msg-box">
+  <span class="emoji" id="msg-emoji">💫</span>
+  <span id="msg-text"></span>
+  <button id="msg-close" onclick="closeMsg()">close ✦</button>
+</div>
+
+<!-- Moon letter -->
+<div id="moon-letter">
+  <div class="letter-title">✦ A Letter From My Heart ✦</div>
+  <div class="letter-body" id="typewriter-text"></div>
+  <div class="sign" id="letter-sign">— Forever yours 🌙</div>
+  <button id="moon-close" onclick="closeMoonLetter()">close ✦</button>
+</div>
+
+<!-- How-to guide -->
+<div id="guide">
+  <div class="guide-title">how to explore</div>
+  <div class="guide-row">
+    <span class="guide-icon">⭐</span>
+    <span class="guide-text">Tap any <b style="font-style:normal;color:rgba(255,240,160,.9)">star</b> — each one holds a secret message</span>
+  </div>
+  <div class="guide-row">
+    <span class="guide-icon">🌠</span>
+    <span class="guide-text">Touch a <b style="font-style:normal;color:rgba(200,180,255,.9)">shooting star</b> as it glides past</span>
+  </div>
+  <div class="guide-row">
+    <span class="guide-icon">🌙</span>
+    <span class="guide-text">Tap the <b style="font-style:normal;color:rgba(255,247,160,.9)">moon</b> for a special letter, just for you</span>
+  </div>
+</div>
+
+<div id="credit">BY Sumitro</div>
+
+<script>
+// ══════════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════════
+const starMessages = [
+  {emoji:"🌸",text:"Every time I see you smile, I forget how to breathe for a second."},
+  {emoji:"✨",text:"You are the reason I look forward to every single day."},
+  {emoji:"💫",text:"I never believed in fate — until I met you."},
+  {emoji:"🦋",text:"The way you laugh... it's my favourite sound in the entire world."},
+  {emoji:"🌺",text:"You make ordinary moments feel like magic."},
+  {emoji:"💖",text:"I'm the luckiest person alive — just to have you as my friend."},
+  {emoji:"⭐",text:"You light up every room you walk into, and you don't even know it."},
+  {emoji:"🌙",text:"I could stay lost in a conversation with you forever."},
+  {emoji:"🕊️",text:"You are the kind of person poems are written about."},
+  {emoji:"🌷",text:"My heart does something strange whenever you're near."},
+  {emoji:"💎",text:"There is no one else in the world quite like you."},
+  {emoji:"🌠",text:"You are my best friend — and also the one who makes my heart race."},
+  {emoji:"🍃",text:"Being with you feels like home. Warm, safe, and perfect."},
+  {emoji:"🫧",text:"Every star up there reminds me of something wonderful about you."},
+  {emoji:"🌸",text:"I'd cross every distance just to see your face."},
+  {emoji:"💫",text:"You are the first person I want to tell everything to."},
+  {emoji:"🌟",text:"The world is quieter and kinder when you're beside me."},
+  {emoji:"💝",text:"I think I've been falling for you without even realising it."},
+  {emoji:"🌻",text:"You deserve all the love the universe has to offer."},
+  {emoji:"✨",text:"There's a warmth in my chest that only appears when you're around."},
+  {emoji:"🎀",text:"I treasure every memory we've made together, more than you know."},
+  {emoji:"🌈",text:"You are my sunshine on the cloudiest of days."},
+  {emoji:"🫶",text:"I think about you more than I'd ever dare to admit."},
+  {emoji:"⭐",text:"You are not just a part of my story — you are my favourite chapter."},
+  {emoji:"🌹",text:"To the world you may be one person, but to me you are the world."},
+  {emoji:"🪐",text:"If I could name a star after you, the sky would run out of names."},
+  {emoji:"🌊",text:"My feelings for you rise like the tide — quietly, inevitably, endlessly."},
+  {emoji:"🎵",text:"Every love song I ever heard suddenly makes sense — because of you."},
+  {emoji:"🍀",text:"Meeting you is the best thing that ever happened to me."},
+  {emoji:"🌙",text:"I look at the moon and wonder if you're looking at it too."},
+  {emoji:"💌",text:"Some things are too big for words — what I feel for you is one of them."},
+  {emoji:"🦢",text:"You are grace and warmth and everything the world needs more of."},
+  {emoji:"🌿",text:"With you, even silence feels like the most beautiful conversation."},
+  {emoji:"✨",text:"You are the kind of rare that only happens once in a lifetime."},
+  {emoji:"🌺",text:"Every day I find a new reason to be grateful you exist."},
+];
+
+const shootMessages = [
+  {emoji:"🌠",text:"A shooting star carries a wish — and tonight, every single wish is yours."},
+  {emoji:"💫",text:"Even the stars are rushing across the sky just to tell you how beautiful you are."},
+  {emoji:"✨",text:"Catch this star and know: somewhere in this world, someone is thinking only of you."},
+  {emoji:"🌌",text:"The universe writes love letters in stardust — and this one, darling, is for you."},
+];
+
+const moonLetter =
+`I have been carrying something in my heart for a long time now — something warm, something terrifying, something beautiful.
+
+You are my best friend. The one I call first. The one whose laughter is music. The one I never get tired of.
+
+But somewhere along the way... something deeper grew in me. Something I cannot name with a single word.
+
+I think I love with  you. Not just as a friend — but in the way the moon loves the earth: quietly, constantly, from a distance, hoping one day to be a little closer.
+
+You don't have to say anything right now. I just needed you to know — under this sky, under these stars — that you are the most extraordinary person I have ever known.
+
+I confess my feelings now but i was already fell, long before I even realised it myself. And that is the most wonderful, terrifying, beautiful thing of all. you're my best friend as the reason i don't confess it, i would fear to confess my love for you because my feelings destroy our beautiful bond, but now i can't hold it anymore, i need to confess it, because it's killing me to hide it, and i want you to know the truth, that i love you more than a friend, that i want to be more than a friend, that i want to be with you, not just as a friend but as something more, something deeper, something that makes
+
+ by through i want will we be together? These 2 years is so memorable with you.  And no matter whatever happens, I am grateful. For every moment. For you, IT'S ME "PILLU OR VIRUS OR SECRET DIARY OF YOURS" `;
+
+// ══════════════════════════════════════════════
+//  HELPERS
+// ══════════════════════════════════════════════
+const sky = document.getElementById('sky');
+function rnd(a,b){return Math.random()*(b-a)+a;}
+
+// ══════════════════════════════════════════════
+//  TWINKLE KEYFRAMES
+// ══════════════════════════════════════════════
+const dynStyle=document.createElement('style');
+dynStyle.textContent=`
+  @keyframes tw0{0%,100%{opacity:.50;transform:scale(1)    }50%{opacity:1;   transform:scale(1.40)}}
+  @keyframes tw1{0%,100%{opacity:.35;transform:scale(.88)  }60%{opacity:.95; transform:scale(1.45)}}
+  @keyframes tw2{0%,100%{opacity:.65;transform:scale(1.05) }40%{opacity:.28; transform:scale(.82)}}
+  @keyframes tw3{0%,100%{opacity:.55;transform:scale(1)    }70%{opacity:1;   transform:scale(1.32)}}
+  @keyframes tw4{0%,100%{opacity:.42;transform:scale(.95)  }55%{opacity:.90; transform:scale(1.38)}}
+  @keyframes tw5{0%,100%{opacity:.70;transform:scale(1.08) }35%{opacity:.20; transform:scale(.80)}}
+`;
+document.head.appendChild(dynStyle);
+
+// ══════════════════════════════════════════════
+//  BUILD STARS
+// ══════════════════════════════════════════════
+/*
+  Grid: 12×14 cells across the sky (0–85% vertical, leaving bottom for guide).
+  Each cell gets exactly 1 star, with a 28% chance of a 2nd — gives ~95–105 stars.
+  Moon corner (col≥9, row≤3) is left empty for the main grid,
+  then filled with exactly 10 hand-spaced stars below.
+*/
+const starColors=['#ffffff','#f5f8ff','#ffe9a2','#ffd5e2','#d2e8ff','#e2d8ff','#c8f0e8','#fff0d0'];
+const COLS=12, ROWS=14;
+const cellW=100/COLS, cellH=85/ROWS;
+let starIdx=0;
+
+function makeStar(x,y){
+  const big=Math.random()<0.10;
+  const sz=big?rnd(5,8):rnd(1.2,4.2);
+  const c=starColors[Math.floor(Math.random()*starColors.length)];
+  const s=document.createElement('div');
+  s.className='star';
+  s.style.cssText=`
+    width:${sz}px;height:${sz}px;
+    left:${x}%;top:${y}%;
+    background:${c};
+    opacity:${big?rnd(.75,1):rnd(.38,.92)};
+    box-shadow:0 0 ${sz*2.2}px ${sz*.9}px ${c}90,0 0 ${sz*5}px ${sz*2}px ${c}48;
+    animation:tw${Math.floor(Math.random()*6)} ${rnd(1.8,6)}s ${rnd(0,5)}s ease-in-out infinite;
+  `;
+  s.dataset.idx=starIdx%starMessages.length; starIdx++;
+  s.addEventListener('touchstart',onStarTouch,{passive:true});
+  s.addEventListener('click',onStarTouch);
+  sky.appendChild(s);
+}
+
+// ── Main grid (moon corner excluded) ──
+for(let row=0;row<ROWS;row++){
+  for(let col=0;col<COLS;col++){
+    if(col>=9&&row<=3) continue; // leave moon corner for dedicated stars
+    const x=col*cellW+rnd(0.4,cellW-0.4);
+    const y=row*cellH+rnd(0.4,cellH-0.4);
+    makeStar(x,y);
+    if(Math.random()<0.28){ // sparse second star
+      makeStar(col*cellW+rnd(0.4,cellW-0.4), row*cellH+rnd(0.4,cellH-0.4));
+    }
+  }
+}
+
+// ── 10 stars in the moon-corner (right side, rows 0–3, cols 9–11) ──
+// Arranged in a loose arc/cluster around the moon — systematic but natural
+// Moon sits at ~top:8%, right:12%  →  left≈76%, so cols 9–11 = 75–100%
+// We place stars in a 2-col × 5-row sub-grid with random jitter
+const moonStars=[
+  {x:rnd(76,82), y:rnd(1,4)  },
+  {x:rnd(84,91), y:rnd(0,3)  },
+  {x:rnd(93,99), y:rnd(1,5)  },
+  {x:rnd(76,80), y:rnd(6,10) },
+  {x:rnd(86,92), y:rnd(5,9)  },
+  {x:rnd(94,99), y:rnd(7,11) },
+  {x:rnd(78,83), y:rnd(12,16)},
+  {x:rnd(87,93), y:rnd(13,17)},
+  {x:rnd(94,99), y:rnd(14,18)},
+  {x:rnd(80,86), y:rnd(19,23)},
+];
+moonStars.forEach(pos=>makeStar(pos.x,pos.y));
+
+function onStarTouch(e){
+  e.stopPropagation();
+  const msg=starMessages[parseInt(this.dataset.idx)];
+  const r=this.getBoundingClientRect();
+  burstSparkle(r.left+r.width/2,r.top+r.height/2);
+  showMsg(msg.emoji,msg.text);
+}
+
+// ══════════════════════════════════════════════
+//  MOON
+// ══════════════════════════════════════════════
+document.getElementById('moon').addEventListener('click',openMoonLetter);
+document.getElementById('moon').addEventListener('touchstart',openMoonLetter,{passive:true});
+
+// ══════════════════════════════════════════════
+//  MESSAGE BUBBLE
+// ══════════════════════════════════════════════
+function showMsg(emoji,text){
+  document.getElementById('msg-emoji').textContent=emoji;
+  document.getElementById('msg-text').textContent=text;
+  document.getElementById('msg-box').classList.add('visible');
+}
+function closeMsg(){document.getElementById('msg-box').classList.remove('visible');}
+sky.addEventListener('click',e=>{if(e.target===sky)closeMsg();});
+
+// ══════════════════════════════════════════════
+//  SPARKLE BURST
+// ══════════════════════════════════════════════
+function burstSparkle(x,y){
+  const cols=['#ffe066','#ffb3c6','#c9b3ff','#a8d0ff','#ffffff','#c8f0e8'];
+  for(let i=0;i<16;i++){
+    const sp=document.createElement('div');
+    sp.className='sparkle';
+    const sz=rnd(3,12),angle=Math.random()*Math.PI*2,dist=rnd(28,95);
+    sp.style.cssText=`left:${x}px;top:${y}px;width:${sz}px;height:${sz}px;
+      background:${cols[i%cols.length]};
+      --tx:${Math.cos(angle)*dist}px;--ty:${Math.sin(angle)*dist}px;
+      box-shadow:0 0 ${sz}px ${sz/2}px rgba(255,240,180,.6);`;
+    document.body.appendChild(sp);
+    setTimeout(()=>sp.remove(),780);
+  }
+}
+
+// ══════════════════════════════════════════════
+//  WEB AUDIO — KEYBOARD CLICK
+// ══════════════════════════════════════════════
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+}
+function playKeyClick(){
+  if(!audioCtx||audioCtx.state!=='running') return;
+  try{
+    const sr=audioCtx.sampleRate;
+    const buf=audioCtx.createBuffer(1,Math.floor(sr*0.045),sr);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,5)*0.45;
+    const src=audioCtx.createBufferSource(); src.buffer=buf;
+    const g=audioCtx.createGain();
+    g.gain.setValueAtTime(1,audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+0.045);
+    src.connect(g); g.connect(audioCtx.destination); src.start();
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════
+//  MOON LETTER + TYPEWRITER
+// ══════════════════════════════════════════════
+let twTimer=null;
+function openMoonLetter(){
+  ensureAudio();
+  document.getElementById('moon-letter').classList.add('visible');
+  startTypewriter();
+}
+function startTypewriter(){
+  const el=document.getElementById('typewriter-text');
+  const sign=document.getElementById('letter-sign');
+  const btn=document.getElementById('moon-close');
+  el.innerHTML=''; sign.style.opacity='0'; btn.style.opacity='0';
+  const cur=document.createElement('span'); cur.className='cursor'; el.appendChild(cur);
+  let i=0; clearInterval(twTimer);
+  twTimer=setInterval(()=>{
+    if(i<moonLetter.length){
+      const ch=moonLetter[i++];
+      el.insertBefore(document.createTextNode(ch),cur);
+      if(ch!=='\n'&&ch!==' ') playKeyClick();
+      document.getElementById('moon-letter').scrollTop=document.getElementById('moon-letter').scrollHeight;
+    } else {
+      clearInterval(twTimer); cur.remove();
+      setTimeout(()=>{sign.style.opacity='1';btn.style.opacity='1';},600);
+    }
+  },36);
+}
+function closeMoonLetter(){
+  document.getElementById('moon-letter').classList.remove('visible');
+  clearInterval(twTimer);
+}
+
+// ══════════════════════════════════════════════
+//  SHOOTING STARS — slow, touchable, looping
+// ══════════════════════════════════════════════
+const shootGradients=[
+  'linear-gradient(90deg,rgba(255,220,100,0) 0%,#ffe566 60%,#fff 100%)',
+  'linear-gradient(90deg,rgba(200,180,255,0) 0%,#c9b3ff 60%,#fff 100%)',
+  'linear-gradient(90deg,rgba(160,220,255,0) 0%,#a8d0ff 60%,#fff 100%)',
+  'linear-gradient(90deg,rgba(255,180,200,0) 0%,#ffb3c6 60%,#fff 100%)',
+];
+const lanes=[
+  {sx:2, sy:7, angle:32},
+  {sx:28,sy:3, angle:28},
+  {sx:52,sy:11,angle:36},
+  {sx:8, sy:24,angle:25},
+];
+lanes.forEach((lane,idx)=>{
+  setTimeout(()=>{
+    spawnShooter(lane,idx);
+    setInterval(()=>spawnShooter(lane,idx),19000);
+  },idx*4800);
+});
+
+function spawnShooter(lane,idx){
+  const W=window.innerWidth,H=window.innerHeight;
+  const el=document.createElement('div'); el.className='shoot-star';
+  const tailLen=W*rnd(0.28,0.42);
+  const angleRad=lane.angle*Math.PI/180;
+  el.style.cssText=`left:${lane.sx}%;top:${lane.sy}%;width:${tailLen}px;transform:rotate(${lane.angle}deg);transform-origin:right center;background:${shootGradients[idx]};`;
+  const hit=document.createElement('div'); hit.className='shoot-hit';
+  const lbl=document.createElement('div'); lbl.className='shoot-label'; lbl.textContent='✦ touch me';
+  el.appendChild(hit); el.appendChild(lbl); sky.appendChild(el);
+  requestAnimationFrame(()=>{el.style.transition='opacity .6s ease';el.style.opacity='1';});
+
+  const totalDist=W*0.82,totalMs=7000,intMs=16,totalSteps=totalMs/intMs;
+  const dxPx=Math.cos(angleRad)*totalDist/totalSteps;
+  const dyPx=Math.sin(angleRad)*totalDist/totalSteps;
+  let cL=lane.sx/100*W,cT=lane.sy/100*H,step=0,touched=false;
+  const mover=setInterval(()=>{
+    step++; cL+=dxPx; cT+=dyPx;
+    el.style.left=cL+'px'; el.style.top=cT+'px';
+    if(step>=totalSteps){clearInterval(mover);fadeRemove(el);}
+  },intMs);
+
+  function onTouch(e){
+    e.stopPropagation(); if(touched)return; touched=true;
+    clearInterval(mover);
+    const msg=shootMessages[idx];
+    const r=el.getBoundingClientRect();
+    const cx=r.left+r.width*0.82, cy=r.top+r.height/2;
+
+    // 1. central flash bloom
+    const flash=document.createElement('div');
+    flash.className='shoot-flash';
+    flash.style.cssText=`left:${cx}px;top:${cy}px;width:80px;height:80px;`;
+    document.body.appendChild(flash);
+    setTimeout(()=>flash.remove(),500);
+
+    // 2. expanding ring
+    const ring=document.createElement('div');
+    ring.className='shoot-ring';
+    ring.style.cssText=`left:${cx}px;top:${cy}px;width:50px;height:50px;`;
+    document.body.appendChild(ring);
+    // second delayed ring
+    setTimeout(()=>{
+      const ring2=document.createElement('div');
+      ring2.className='shoot-ring';
+      ring2.style.cssText=`left:${cx}px;top:${cy}px;width:50px;height:50px;animation-delay:.15s;border-color:rgba(200,180,255,.7);`;
+      document.body.appendChild(ring2);
+      setTimeout(()=>ring2.remove(),900);
+    },120);
+    setTimeout(()=>ring.remove(),800);
+
+    // 3. radiating rays (8 directions)
+    const rayColors=['#ffe566','#ffb3c6','#c9b3ff','#a8d0ff','#fff','#c8f0e8','#ffe566','#ffb3c6'];
+    for(let r2=0;r2<8;r2++){
+      const angle=r2*45;
+      const len=rnd(28,58);
+      const ray=document.createElement('div');
+      ray.className='shoot-ray';
+      ray.style.cssText=`
+        left:${cx}px;top:${cy}px;
+        background:${rayColors[r2]};
+        box-shadow:0 0 6px 2px ${rayColors[r2]}99;
+        --rlen:${len}px;
+        transform:translate(-50%,-100%) rotate(${angle}deg);
+        transform-origin:bottom center;
+      `;
+      document.body.appendChild(ray);
+      setTimeout(()=>ray.remove(),750);
+    }
+
+    // 4. sparkle burst
+    burstSparkle(cx,cy);
+
+    // 5. show message with slight delay for drama
+    setTimeout(()=>showMsg(msg.emoji,msg.text),200);
+    setTimeout(()=>fadeRemove(el),400);
+  }
+  [hit,el].forEach(t=>{
+    t.addEventListener('touchstart',onTouch,{passive:true});
+    t.addEventListener('click',onTouch);
+  });
+}
+
+function fadeRemove(el){
+  el.style.transition='opacity .7s ease'; el.style.opacity='0';
+  setTimeout(()=>{if(el.parentNode)el.parentNode.removeChild(el);},760);
+}
+</script>
+</body>
+</html>
